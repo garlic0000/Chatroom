@@ -33,3 +33,7 @@ def run():
         root.destroy()
     except tk.TclError:
         pass
+
+
+if __name__ == "__main__":
+    run()

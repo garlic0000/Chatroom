@@ -1,5 +1,8 @@
 import os
 import struct
+# ModuleNotFoundError: No module named 'Cryptodome’
+# pip install pycryptodome
+# pip install pycryptodomex
 from Cryptodome.Cipher import AES
 from server.settings.secure import get_share_key
 from server.settings.others import long_to_bytes

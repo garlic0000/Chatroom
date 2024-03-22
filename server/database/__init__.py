@@ -5,7 +5,13 @@ from Cryptodome.Cipher import AES
 import base64
 from hashlib import md5 as _md5
 
-conn = sqlite3.connect('server/database/chat_room.db', isolation_level=None)
+# 创建连接
+try:
+    conn = sqlite3.connect('server/database/chat_room.db', isolation_level=None)
+except:
+    print("无法连接数据库")
+    print("创建新的数据库")
+
 
 # 绝对路径
 # conn = sqlite3.connect('D:/project/chatroom7/server/database/chat_room.db', isolation_level=None)

@@ -47,7 +47,9 @@ class LoginForm(tk.Frame):
         x = (screen_width - w) // 2
         y = (screen_height - h) // 2
         self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        self.master.iconbitmap("client\data\si.ico")
+        # D:/PycharmProjects/Chatroom/client/data/si.ico
+        self.master.iconbitmap("../client/data/si.ico")
+
         self.master.title('登录')
         background_color = "white"
 

@@ -3,11 +3,12 @@
 default_ecc_table = {
     'n': 'FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFF7203DF6B21C6052B53BBF40939D54123',
     'p': 'FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFF',
-    'g': '32c4ae2c1f1981195f9904466a39c9948fe30bbff2660be1715a4589334c74c7'\
+    'g': '32c4ae2c1f1981195f9904466a39c9948fe30bbff2660be1715a4589334c74c7' \
          'bc3736a2f4f6779c59bdcee36b692153d0a9877cc62a474002df32e52139f0a0',
     'a': 'FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFC',
     'b': '28E9FA9E9D9F5E344D5A9E4BCF6509A7F39789F515AB8F92DDBCBD414D940E93',
 }
+
 
 class CryptSM2(object):
 
@@ -16,7 +17,7 @@ class CryptSM2(object):
         self.public_key = public_key
         self.para_len = len(ecc_table['n'])
         self.ecc_a3 = (
-            int(ecc_table['a'], base=16) + 3) % int(ecc_table['p'], base=16)
+                              int(ecc_table['a'], base=16) + 3) % int(ecc_table['p'], base=16)
         self.ecc_table = ecc_table
 
     def kg(self, k, Point):  # kP运算
@@ -42,7 +43,7 @@ class CryptSM2(object):
     def _double_point(self, Point):  # 倍点
         l = len(Point)
         len_2 = 2 * self.para_len
-        if l< self.para_len * 2:
+        if l < self.para_len * 2:
             return None
         else:
             x1 = int(Point[0:self.para_len], 16)
@@ -120,7 +121,7 @@ class CryptSM2(object):
             form = form * 3
             return form % (X3, Y3, Z3)
 
-    def _convert_jacb_to_nor(self, Point): # Jacobian加重射影坐标转换成仿射坐标
+    def _convert_jacb_to_nor(self, Point):  # Jacobian加重射影坐标转换成仿射坐标
         len_2 = 2 * self.para_len
         x = int(Point[0:self.para_len], 16)
         y = int(Point[self.para_len:len_2], 16)

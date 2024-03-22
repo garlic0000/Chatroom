@@ -22,7 +22,8 @@ def run():
     s.bind((config.server['bind_ip'], config.server['bind_port']))
     s.listen(1)
 
-    print("Server listening on " + config.server['bind_ip'] + ":" + str(config.server['bind_port']))
+    print("服务端绑定IP和端口为" + config.server['bind_ip'] + ":" + str(config.server['bind_port']))
+    print("等待客户端的连接...")
 
     bytes_to_receive = {}
     bytes_received = {}
@@ -97,7 +98,7 @@ def run():
 
                 else:
                     data_buffer[sc] = bytes()
-                    bytes_to_receive[sc] = struct.unpack('!L', first_4_bytes)[0]   # 读取数据的长度
+                    bytes_to_receive[sc] = struct.unpack('!L', first_4_bytes)[0]  # 读取数据的长度
 
             buffer = sc.socket.recv(bytes_to_receive[sc] - bytes_received[sc])
             data_buffer[sc] += buffer
@@ -125,3 +126,7 @@ def run():
                     traceback.print_exc(file=sys.stdout)
                     pass
                 data_buffer[sc] = bytes()
+
+
+if __name__ == "__main__":
+    run()
