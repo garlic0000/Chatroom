@@ -291,7 +291,7 @@ class ContactsForm(Frame):
         client.data.contact_window.append(self)
         super().__init__(master)
         self.master = master
-        self.master.iconbitmap("client\data\si.ico")
+        self.master.iconbitmap("../client/data/si.ico")
         screen_width = client.data.tk_root.winfo_screenwidth()
         screen_height = client.data.tk_root.winfo_screenheight()
         x = screen_width - 450

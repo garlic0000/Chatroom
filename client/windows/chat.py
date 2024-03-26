@@ -125,7 +125,7 @@ class ChatForm(Frame):
         # master.minsize(520, 370)
         self.target = target
         background_color = "white"
-        self.master.iconbitmap("client\data\si.ico")
+        self.master.iconbitmap("../client/data/si.ico")
         self.master.configure(background=background_color)
         # 群成员用户列表
         self.user_listbox = Listbox(self, bg='white')

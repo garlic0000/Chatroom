@@ -4,13 +4,31 @@ import json
 from Cryptodome.Cipher import AES
 import base64
 from hashlib import md5 as _md5
+import os
 
 # 创建连接
+# noinspection PyBroadException
+path = "D:/PycharmProjects/Chatroom/"
+dbpath = path + "server/database/chat_room.db"
+sqlpath = path + "server/database/chat_room.sql"
 try:
-    conn = sqlite3.connect('server/database/chat_room.db', isolation_level=None)
+    # 连接数据库
+    conn = sqlite3.connect(dbpath, isolation_level=None)
 except:
+    # 连接失败会重新创建该数据库
     print("无法连接数据库")
+    # 删除数据库 删除文件
+    print(dbpath)
+    if os.path.isfile(dbpath):
+        print("vbsfb")
+        os.remove(dbpath)
     print("创建新的数据库")
+    conn = sqlite3.connect(dbpath, isolation_level=None)
+    # 执行sql文件 创建表
+    cursor = conn.cursor()
+    with open(sqlpath, 'r') as script_file:
+        script = script_file.read()
+        cursor.executescript(script)
 
 
 # 绝对路径
