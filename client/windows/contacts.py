@@ -192,6 +192,7 @@ class ContactsForm(Frame):
         self.sc.send(MessageCode.del_friend, result)
 
     def get_myinfo(self):
+        # 显示个人信息
 
         data = """
         我的姓名:{0}
@@ -202,12 +203,14 @@ class ContactsForm(Frame):
         simpledialog.messagebox.showinfo('我的信息', data)
 
     def quit_room(self):
+        # 退出群
         result = simpledialog.askstring('退出群组', '请输入群号')
         if (not result):
             return
         self.sc.send(MessageCode.quit_from_room, result)
 
     def dissolve_room(self):
+        # 解散群
         result = simpledialog.askstring('解散群组', '请输入群号')
         if (not result):
             return

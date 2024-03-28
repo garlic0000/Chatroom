@@ -16,38 +16,47 @@ import json
 
 
 def run():
-    # TCP/IP – IPv4  TCP
+    # 创建TCP/IPv4套接字
+    # AF_INET IPv4  AF_INET6 IPv6 SOCK_STREAM TCP SOCK_DGRAM UDP
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # 端口复用 把多个套接字绑定在一个端口上
+    # SOL_SOCKET 套接字描述符 SO_REUSEADDR 取1 打开复用功能
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    # 绑定 指定的ip地址和端口号
     s.bind((config.server['bind_ip'], config.server['bind_port']))
-    s.listen(1)
+    # 开始监听
+    s.listen(5)  # 为什么设置为5？ https://blog.csdn.net/wanxuexiang/article/details/84075884
 
     print("服务端绑定IP和端口为" + config.server['bind_ip'] + ":" + str(config.server['bind_port']))
     print("等待客户端的连接...")
 
-    bytes_to_receive = {}
-    bytes_received = {}
-    data_buffer = {}
+    bytes_to_receive = {}  # 对应的连接: 要接受的字节数
+    bytes_received = {}  # 对应的连接: 已经接受的字节数
+    data_buffer = {}  # 对应的连接: 数据块
 
     while True:
-        # 1.rlist：list类型，监听其中的socket或者文件描述符是否变为可读状态，返回那些可读的socket或者文件描述符组成的list
-        # 2.wlist：list类型，监听其中的socket或者文件描述符是否变为可写状态，返回那些可写的socket或者文件描述符组成的list
-        # 3.xlist：list类型，监听其中的socket或者文件描述符是否出错，返回那些出错的socket或者文件描述符组成的list
+        # rlist: 监听socket是否变为可读状态
+        # wlist: 监听socket是否变为可写状态
+        # xlist: 监听socket是否出错
+        # select函数阻塞进程，直到x.socket被触发
+        # 监听服务器套接字和获得的客户端套接字
         rlist, wlist, xlist = select.select(list(map(lambda x: x.socket, scs)) + [s], [], [])
 
-        for i in rlist:
+        for i in rlist:  # 可读
 
+            # 服务器端套接字被触发（监听到有客户端连接服务器）
             if i == s:
-                # 监听socket为readable，说明有新的客户要连入
                 sc = server_to_client(s)  # 协商共享密钥 返回安全连接
-                socket_to_sc[sc.socket] = sc
-                scs.append(sc)
+                socket_to_sc[sc.socket] = sc  # 记住对应的连接
+                scs.append(sc)  # 增加一个新的连接
+                # 数据初始化
                 bytes_to_receive[sc] = 0
                 bytes_received[sc] = 0
                 data_buffer[sc] = bytes()
                 continue
 
-            # 如果不是监听socket，就是旧的客户发消息过来了
+            # 不是服务器端socket被触发,则是已连接的客户端发送消息
+            # 对对应的套接字进行操作
             sc = socket_to_sc[i]
 
             if bytes_to_receive[sc] == 0 and bytes_received[sc] == 0:
@@ -55,6 +64,7 @@ def run():
                 conn_ok = True
                 first_4_bytes = ''
                 try:
+                    # 前4个字节为数据长度
                     first_4_bytes = sc.socket.recv(4)
                 except ConnectionError:
                     conn_ok = False
@@ -63,12 +73,14 @@ def run():
                     conn_ok = False
 
                 if not conn_ok:
+                    # 连接未成功
                     sc.close()
 
                     if sc in sc_to_user_id:
+                        # 获取该连接对应的用户id
                         user_id = sc_to_user_id[sc]
-                        # 通知他的好友他下线了
 
+                        # 通知他的好友他下线了
                         frs = database.get_friends(user_id)
                         for fr in frs:
                             if fr['id'] in user_id_to_sc:
@@ -85,6 +97,7 @@ def run():
                             users_id = database.get_room_members_id(room_id)
                             for _user_id in users_id:
                                 if _user_id in user_id_to_sc and user_id != _user_id:
+                                    # 群成员在线 该成员不是本人
                                     offline = {
                                         "user_id": user_id,
                                         "room_id": room_id,
@@ -97,15 +110,19 @@ def run():
                     remove_sc_from_socket_mapping(sc)
 
                 else:
+                    # 连接成功
+                    # 初始化数据块 准备接受数据
                     data_buffer[sc] = bytes()
-                    bytes_to_receive[sc] = struct.unpack('!L', first_4_bytes)[0]  # 读取数据的长度
+                    # 读取要接受的数据的长度
+                    bytes_to_receive[sc] = struct.unpack('!L', first_4_bytes)[0]
 
+            # 数据还未接受完 继续接受
             buffer = sc.socket.recv(bytes_to_receive[sc] - bytes_received[sc])
             data_buffer[sc] += buffer
             bytes_received[sc] += len(buffer)
 
             if bytes_received[sc] == bytes_to_receive[sc] and bytes_received[sc] != 0:
-                # 当一个数据包接收完毕
+                # 数据接收完毕
                 bytes_to_receive[sc] = 0
                 bytes_received[sc] = 0
                 try:
@@ -120,11 +137,13 @@ def run():
                     # 有时只发送消息码
                     # data为字符串
                     # 之前dumps过
+                    # 根据message_code进行事件处理
                     handle_event(sc, data.get("message_code"), data.get("data", ""))
                 except:
                     pprint(sys.exc_info())
                     traceback.print_exc(file=sys.stdout)
                     pass
+                # 数据块清空
                 data_buffer[sc] = bytes()
 
 

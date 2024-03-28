@@ -29,4 +29,6 @@ event_handler_map = {
 
 
 def handle_event(sc, event_type, datas):
+    # 对应事件处理
+    # 每个事件处理py文件都是run函数
     event_handler_map[event_type].run(sc, datas)

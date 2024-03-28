@@ -38,8 +38,7 @@ def socket_listener_thread(sc, tk_root):
                 conn_ok = True
                 first_4_bytes = ''
                 try:
-                    # ？？？
-                    # 端口号放前四个字节
+                    # 数据长度
                     first_4_bytes = sc.socket.recv(4)
                 except ConnectionError:
                     conn_ok = False

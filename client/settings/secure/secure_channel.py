@@ -10,6 +10,7 @@ from client.settings.message_format import get_message_from_code
 import base64
 import json
 
+
 class SecureChannel:
     def __init__(self, socket, shared_secret):
         # 设置非阻塞
@@ -71,15 +72,15 @@ class SecureChannel:
             # 密钥不同 重新登录
             print("密钥匹配失败！！！！")
 
-
     def close(self):
         self.socket.close()
 
 
 # 客户端向服务器端发送公钥
 def client_to_server():
+    # 创建TCP/IPv4套接字
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+    # 连接服务器
     s.connect((config.client['server_ip'], int(config.client['server_port'])))
 
     # 首次连接，用diffle hellman交换密钥
@@ -99,5 +100,3 @@ def client_to_server():
     sc = SecureChannel(s, shared_secret)
 
     return sc
-
-

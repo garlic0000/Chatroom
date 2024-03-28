@@ -3,6 +3,7 @@ from server import database
 from server.settings.message_format import MessageCode
 from server.settings.add_type import add_target_type
 
+
 # 处理好友请求
 # 对方发来好友请求
 def run(sc, data):

@@ -1,5 +1,6 @@
 current_user = {"id": "", "username": ""}
 sc = None
+# 用户窗口
 tk_root = None
 
 window_instance = [{}, {}]

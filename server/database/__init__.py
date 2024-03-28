@@ -38,10 +38,12 @@ except:
 # D:\project\chatroom7\server\database
 
 def get_cursor():
+    # 获取当前游标
     return conn.cursor()
 
 
 def commit():
+    # 提交当前事物
     return conn.commit()
 
 
@@ -71,6 +73,7 @@ def get_pending_friend_request(user_id):
 
 # 获取好友
 def get_friends(user_id):
+    # 获取指定用户id的所有好友
     c = get_cursor()
     users = []
     rows = c.execute('SELECT to_user_id FROM friends WHERE from_user_id=? AND accepted', [user_id]).fetchall()

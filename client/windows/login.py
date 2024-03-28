@@ -12,32 +12,8 @@ import json
 
 # 继承Frame
 class LoginForm(tk.Frame):
-    def remove_socket_listener_and_close(self):
-        client.socket_listener.remove_listener(self.socket_listener)
-        self.master.destroy()
-
-    # 关闭窗口并退出
-    def destroy_window(self):
-        client.data.tk_root.destroy()
-
-    def socket_listener(self, data):
-        if data.get("message_code") == MessageCode.login_failed:
-            messagebox.showerror('登录失败', '用户名或密码错误')
-            return
-        # # {'message_code': 200, 'data': '{"id": 1, "username": "user1", "online": true}'}
-        if data.get("message_code") == MessageCode.login_successful:
-            # current_user = {"id": 0, "username": ""}
-            userinfo = data.get("data")
-            userinfo = json.loads(userinfo)
-            client.data.current_user = {"id": userinfo.get("id"), "username": userinfo.get("username")}
-            self.remove_socket_listener_and_close()
-            # 跳转到用户列表界面
-            # 聚焦
-            contacts = Toplevel(client.data.tk_root, takefocus=True)
-            ContactsForm(contacts)
-            return
-
     def __init__(self, master=None):
+        # 登录界面的配置
         super().__init__(master)
         self.master = master
         screen_width = client.data.tk_root.winfo_screenwidth()
@@ -48,6 +24,7 @@ class LoginForm(tk.Frame):
         y = (screen_height - h) // 2
         self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))
         # D:/PycharmProjects/Chatroom/client/data/si.ico
+        # 图标
         self.master.iconbitmap("../client/data/si.ico")
 
         self.master.title('登录')
@@ -73,7 +50,8 @@ class LoginForm(tk.Frame):
         self.password = Entry(self.master, highlightthickness=1, bg=entryBackGroundColor, show='*')
         self.password.place(x=20, y=220, width=320, height=30)
 
-        self.logbtn = Button(self.master, text='立即登录', font=('Fixdsys', 14, 'bold'), width=28, fg='white', bg="#0081FF",
+        self.logbtn = Button(self.master, text='立即登录', font=('Fixdsys', 14, 'bold'), width=28, fg='white',
+                             bg="#0081FF",
                              command=self.do_login)
         self.logbtn.place(x=20, y=280)
 
@@ -86,13 +64,40 @@ class LoginForm(tk.Frame):
                               command=self.click_quit)
         self.quitbtn.place(x=175, y=324)
 
-        # self.pack()
-
         self.sc = client.data.sc
+        # 把当前
         client.socket_listener.add_listener(self.socket_listener)
 
+    def remove_socket_listener_and_close(self):
+        # 关闭当前的
+        client.socket_listener.remove_listener(self.socket_listener)
+        self.master.destroy()
+
+    # 关闭窗口并退出
+    def destroy_window(self):
+        # 关闭界面
+        client.data.tk_root.destroy()
+
+    def socket_listener(self, data):
+        if data.get("message_code") == MessageCode.login_failed:
+            messagebox.showerror('登录失败', '用户名或密码错误')
+            return
+        # # {'message_code': 200, 'data': '{"id": 1, "username": "user1", "online": true}'}
+        if data.get("message_code") == MessageCode.login_successful:
+            # current_user = {"id": 0, "username": ""}
+            userinfo = data.get("data")
+            userinfo = json.loads(userinfo)
+            client.data.current_user = {"id": userinfo.get("id"), "username": userinfo.get("username")}
+            # 当前的界面关闭
+            self.remove_socket_listener_and_close()
+            # 跳转到用户列表界面
+            # 聚焦
+            contacts = Toplevel(client.data.tk_root, takefocus=True)
+            ContactsForm(contacts)
+            return
+
     def do_login(self):
-        # 是否要对数据进行过滤？？？
+        # 点击登录按钮进行登录
         username = self.username.get()
         password = self.password.get()
         if not username:
@@ -111,12 +116,15 @@ class LoginForm(tk.Frame):
         }
 
         data = json.dumps(data)
+        # 将数据发送给服务器端进行验证
         self.sc.send(MessageCode.login, data)
 
     def show_register(self):
+        # 点击注册按钮后 弹出注册界面
         register_form = Toplevel()
         RegisterForm(register_form)
 
     def click_quit(self):
+        # 点击取消
         self.remove_socket_listener_and_close()
         self.destroy_window()
